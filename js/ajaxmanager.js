@@ -48,8 +48,4 @@ var ajaxManager = (function ($, global, document) {
 
 })(jQuery, window, document);
 
-// can be called to load data from ajax call
-// ajaxManager.loadData(buildList); 
-
 // ajaxManager.loadMore(50, buildList);
-// ajaxManager.search('businessName', 'Royal Destination'); // returns this object
