@@ -22,7 +22,8 @@ var onlineBizPanel = (function ($, global, document) {
     */
     function panelHandler(evt) {
         togglePanel();
-        ajaxManager.search('businessName', 'Liberty Travel');
+        var details = ajaxManager.search('businessName', 'Liberty Travel');
+        console.log(details);
     }
     
     /**
@@ -120,26 +121,20 @@ var onlineBizPanel = (function ($, global, document) {
         $toggleElement = $(opt.toggleElement);
         
         // get data
-        ajaxManager.loadData(buildList);
-        
-        
+        ajaxManager.loadData(buildList); 
 
         // listener for toggle element
         $toggleElement.bind('click', panelHandler);
     };
 
     return publicAPI;
-
 })(jQuery, window, document);
 
 
-
 $(document).ready(function () {  
-
     onlineBizPanel.init({
         listContainer: '#online-list-containter',
         listInnerContainer: '#online-list-containter ul',
         toggleElement: '#online-biz-toggle'
-    });
-    
+    });  
 });

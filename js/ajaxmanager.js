@@ -15,9 +15,12 @@ var ajaxManager = (function ($, global, document) {
 
     publicAPI.search = function(key, value) {
         var result;
-        // TODO: search for key/value pair then return that object
-        console.log(parsedData);
-        return result;
+        parsedData.forEach(function(dataObj){  
+            if (dataObj[key] === value) {
+                result = dataObj;
+            }
+        });
+        return (result) ? result : 'No results found.';
     }
 
     publicAPI.loadMore = function(limit, cb) {
