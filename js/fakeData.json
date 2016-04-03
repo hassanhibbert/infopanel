@@ -12,7 +12,7 @@
         "details": "Let the travel agents at Fox World Travel plan your next extraordinary vacation.",
         "phone": "407-555-5555",
         "website": "http://www.gofox.com",
-        "logo": "http://placehold.it/75x75",
+        "logo": "",
         "mainimage": "http://placehold.it/240x200"
     },
      {
@@ -29,7 +29,7 @@
         "phone": "407-555-5555",
         "website": "http://www.libertytravel.com",
         "logo": "http://placehold.it/75x75",
-        "mainimage": "http://placehold.it/240x200"
+        "mainimage": ""
     },
      {
         "businessName": "Royal Destination",
