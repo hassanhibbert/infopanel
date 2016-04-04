@@ -57,6 +57,12 @@ h1,h2,h3,h4,h5,h6 {
 }
 
 /* CHEVICONS */
+.left-align {
+        float: left;
+    /* display: none; */
+    margin-right: 8px;
+    margin-top: 4px;
+}
 hr {
     border: 0;
     height: 0;

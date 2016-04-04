@@ -26,6 +26,7 @@ var onlineBizPanel = (function ($, document) {
         if ($status === 'accordion') {
             togglePanel();
         } else if ($status === 'back') {
+            $toggleElement.find('i').removeClass('ob-hide');
             changeContent($listInnerContainter);
         }
     }
@@ -34,17 +35,15 @@ var onlineBizPanel = (function ($, document) {
         evt.preventDefault();
         var $currentName = $(this).attr('data-businessname'),
             detailsObj = ajaxManager.search('businessName', $currentName);
+        $toggleElement.find('i').addClass('ob-hide');
         buildFullDetails(detailsObj, changeContent.bind(null, $fullDetails));
     }
 
-    function setNewVariables() {
-        var $hideElement = ($element.selector === '#ob-full-details') ? $listInnerContainter : $fullDetails,
+    function changeContent($element) {
+         var $hideElement = ($element.selector === '#ob-full-details') ? $listInnerContainter : $fullDetails,
             status = ($element.selector === '#ob-full-details') ? 'back' : 'accordion',
             toggleText = ($element.selector === '#ob-full-details') ? 'Back' : 'Online Businesses',
             $currentElement = ($element.selector === '#ob-full-details') ? $element : $listInnerContainter;
-    }
-    function changeContent($element) {
-        setNewVariables()
             
         $toggleElement.attr('data-status', status).find('h2').text(toggleText);
         $hideElement.addClass('ob-hide');
