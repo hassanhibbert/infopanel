@@ -1,14 +1,14 @@
 /* default style */
 
 h1,h2,h3,h4,h5,h6 {
+    color: #191a7e; 
     font-family: Rockwell, Georgia, Times, 'Times New Roman', serif;
-    text-rendering: optimizeLegibility;
-    margin-bottom: 0.5rem;
-    font-weight: normal;
     font-style: normal;
-    margin-top: 0.2rem;
-    line-height: 1.4;
-    color: #191a7e;   
+    font-weight: normal;
+    line-height: 1.4; 
+    margin-bottom: 0.5rem;
+    margin-top: 0.2rem; 
+    text-rendering: optimizeLegibility;
 }
 
 
@@ -39,11 +39,14 @@ h1,h2,h3,h4,h5,h6 {
     display: inline-block;
     color: #191a7e;
     font-size: 18px;
+    -webkit-transition: all 0.5s;
+    transition: all 0.5s; 
 }
 
 .chevicon-chev-down:before { 
     content: "\f100";
     margin: 6px 0 0 19px;
+
 }
 .chevicon-chev-left:before { 
     content: "\f101"; 
@@ -57,11 +60,10 @@ h1,h2,h3,h4,h5,h6 {
 }
 
 /* CHEVICONS */
-.left-align {
-        float: left;
-    /* display: none; */
-    margin-right: 8px;
-    margin-top: 4px;
+.rotate-up:before {
+    -webkit-transform: rotate(180deg);
+    -ms-transform: rotate(180deg);
+    transform: rotate(180deg);
 }
 hr {
     border: 0;
@@ -88,11 +90,20 @@ hr {
     max-width: 300px;
     box-shadow: 0 0 4px #A9A9A9;
     overflow: hidden;
+    position: fixed;
+    right: 0;
+    top: 0;
+}
+
+.drop-shadow {
+    box-shadow: 0 0 10px #615F5F;
 }
 
 #online-biz-toggle {
     padding: 20px 30px;
     cursor: pointer;
+    -webkit-transition: box-shadow 0.3s;
+    transition: box-shadow 0.3s;
 }
 
 #online-biz-toggle h2 {
@@ -106,6 +117,7 @@ hr {
     font-family: Arial, Helvetica, sans-serif;
     -webkit-transition: height 0.5s ease-out;
     transition: height 0.5s ease-out;
+    overflow-y: scroll;
 }
 
 #online-list-containter ul, #ob-full-details {
@@ -132,12 +144,13 @@ hr {
 }
 
 #online-biz-container .ob-expanded {
-   height: 750px;
+   height: 660px;
 }
 
 #online-biz-container .ob-collapse {
     height: 0;
     overflow: hidden;
+    
 }
 
 #online-list-containter .ob-phone {
@@ -190,6 +203,10 @@ hr {
     font-weight: bold;
 }
 
+#online-list-containter ul {
+    overflow-y: scroll;
+}
+
 #online-list-containter ul, #ob-full-details {
     padding: 0;
     margin: 0 30px 20px 30px;
@@ -202,4 +219,10 @@ hr {
 
 #online-list-containter ul li:last-child { 
     border-bottom: none;
+}
+
+#loadbutton {
+    position: fixed;
+    top: 30px;
+    left: 700px;
 }

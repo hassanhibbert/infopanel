@@ -1,4 +1,5 @@
 /* global $, jQuery, document, ajaxManager */
+/* jshint -W030  */
 
 var onlineBizPanel = (function ($, document) {
     var
@@ -9,50 +10,94 @@ var onlineBizPanel = (function ($, document) {
         $fullDetails,
 
         // module API
-        publicAPI = {};
+        publicAPI = {},
+        
+        shadowViewport = true;
 
     //###############//
     //### Private ###//
     //###############//
+    
+     /**
+     * Toggles classes to animate the panel height
+     * and up/down arrow
+     */
+    function expandCollapsePanel() {
+        $listContainter.toggleClass('ob-expanded ob-collapse');
+        $listInnerContainter.toggleClass('ob-fadeOut ob-fadeIn');
+        $toggleElement.find('i').toggleClass('rotate-up');
+    }
+    
+    /**
+     * Show/Hide "Listed Details" and "Full Details" panel.
+     * 
+     * @param {boolean}
+     * @param {element} Element to show
+     */
+    function changeContent(update, $showEl) { 
+        // change elements and content if "update = true"
+        var $hideEl = (update) ? $listInnerContainter : $fullDetails,
+            status = (update) ? 'back' : 'accordion',
+            toggleText = (update) ? 'Back' : 'Online Businesses';
+    
+        $toggleElement.find('i').toggleClass('ob-hide');
+        $toggleElement.attr('data-status', status).find('h2').text(toggleText);
+        
+        $hideEl.addClass('ob-hide');
+        $hideEl.toggleClass('ob-fadeOut ob-fadeIn');
+        
+        $showEl.removeClass('ob-hide');
+        $showEl.outerHeight(); // trigger css reflow/repaint
+        $showEl.toggleClass('ob-fadeOut ob-fadeIn');
+    }
+    
+    /**
+     * Creates elements with attributes on-the-fly
+     *
+     * @param {string} The element to create. Example: div, a, img...
+     * @param {object} Object containing attribute name/value pairs
+     * @return {element} Newly created element with attribute name/value pairs
+     */
+    function myCreateElement(elementType, attributes) {
+        var el = document.createElement(elementType);
+        if (attributes) {
+            Object.keys(attributes).forEach(function (type) {
+                el.setAttribute(type, attributes[type]);
+            });
+        }
+        return el;
+    }
 
     /**
      * Handler for panel clicks
      * 
      * @param {event} Click event information
      */
-    function panelHandler(evt) {
+    function handlePanelClick(evt) {
         var $status = $toggleElement.attr('data-status');
-        $('.bottom-wrap, .top-wrap').remove();      
-        if ($status === 'accordion') {
-            togglePanel();
-        } else if ($status === 'back') {
-            $toggleElement.find('i').removeClass('ob-hide');
-            changeContent($listInnerContainter);
-        }
+        ($status === 'accordion') ? expandCollapsePanel() : changeContent(false, $listInnerContainter);
+        $('.bottom-wrap, .top-wrap').remove();
     }
-
-    function detailsHandler(evt) {
+    
+    /**
+     * Handler for details clicks
+     * 
+     * @param {event} click event
+     */
+    function handleDetailsClick(evt) {
         evt.preventDefault();
         var $currentName = $(this).attr('data-businessname'),
-            detailsObj = ajaxManager.search('businessName', $currentName);
-        $toggleElement.find('i').addClass('ob-hide');
-        buildFullDetails(detailsObj, changeContent.bind(null, $fullDetails));
+            detailsData = ajaxManager.search('businessName', $currentName),
+            bindContent = changeContent.bind(null, true, $fullDetails);
+        buildFullDetails(detailsData, bindContent);
     }
-
-    function changeContent($element) {
-         var $hideElement = ($element.selector === '#ob-full-details') ? $listInnerContainter : $fullDetails,
-            status = ($element.selector === '#ob-full-details') ? 'back' : 'accordion',
-            toggleText = ($element.selector === '#ob-full-details') ? 'Back' : 'Online Businesses',
-            $currentElement = ($element.selector === '#ob-full-details') ? $element : $listInnerContainter;
-            
-        $toggleElement.attr('data-status', status).find('h2').text(toggleText);
-        $hideElement.addClass('ob-hide');
-        $hideElement.toggleClass('ob-fadeOut ob-fadeIn');
-        $element.removeClass('ob-hide');
-        $element.outerHeight();
-        $element.toggleClass('ob-fadeOut ob-fadeIn');
-    }
-
+    
+    /**
+     * Builds elements for full details panel and attaches it to DOM
+     * 
+     * @param {object} object containing the data for full details
+     * @param {function} callback is executed after the details are inserted in to DOM
+     */
     function buildFullDetails(data, cb) {
         var imgElement,
         
@@ -72,31 +117,23 @@ var onlineBizPanel = (function ($, document) {
             logoImg = (data.logo) ? myCreateElement('img', {src: data.logo, alt: 'business logo'}) : undefined,
             mainImg = (data.mainimage) ? myCreateElement('img', {src: data.mainimage, alt: 'main image'}) : undefined;
         
-        // append logo if it  exist
-        if (logoImg) {
-            $(topDiv).append(logoImg, hTag, aTagPhone);
-        } else {
-            $(topDiv).append(hTag, aTagPhone);
-        }
-        
-        // append div to document fragment
+        // append elements (Logo, Business name, phone number)
+        (logoImg) ? $(topDiv).append(logoImg) : logoImg; // append logo if it  exist 
+        $(topDiv).append(hTag);
+        $(topDiv).append(aTagPhone); 
         $(hTag).append(data.businessName);
         $(aTagPhone).append(data.phone);
         $(docFrag).append(topDiv);
         
-        // append main image if it exist
-        if (mainImg) {
-            $(bottomDiv).append(pTagDetails, aTagWeb, hr, mainImg);
-        } else {
-            $(bottomDiv).append(pTagDetails, aTagWeb);
-        }
-        
-        // append div to document fragment
+        // append elements (Description, Main image)
+        $(bottomDiv).append(pTagDetails);
+        $(bottomDiv).append(aTagWeb);
+        (mainImg) ? $(bottomDiv).append(hr, mainImg) : mainImg; // append main image if it exist
         $(pTagDetails).append(data.details);
         $(aTagWeb).append(data.website);
         $(docFrag).append(bottomDiv);
         
-        // append details data to DOM
+        // append full details to DOM
         $fullDetails.append(docFrag);
         
         // check to see if image exsist and assign to imgElement
@@ -108,36 +145,9 @@ var onlineBizPanel = (function ($, document) {
     }
 
     /**
-     * Toggles classes to animate the panel height
-     * and up/down arrow
-     */
-    function togglePanel() {
-        $listContainter.toggleClass('ob-expanded ob-collapse');
-        $listInnerContainter.toggleClass('ob-fadeOut ob-fadeIn');
-        $toggleElement.find('i').toggleClass('chevicon-chev-up chevicon-chev-down');
-    }
-
-    /**
-     * Creates elements with attributes on-the-fly
-     *
-     * @param {string} The element to create. Example: div, a, img...
-     * @param {object} Object containing attribute name/value pairs
-     * @return {element} Newly created element with attribute name/value pairs
-     */
-    function myCreateElement(elementType, attributes) {
-        var el = document.createElement(elementType);
-        if (attributes) {
-            Object.keys(attributes).forEach(function (type) {
-                el.setAttribute(type, attributes[type]);
-            });
-        }
-        return el;
-    }
-
-    /**
      * Builds out DOM element and append them to DOM
      * 
-     * @param {array} representing each object in the array "JSON Objects" 
+     * @param {array} contains objects with data to be iterated over 
      */
     function buildList(data) {
         // document fragment
@@ -167,6 +177,22 @@ var onlineBizPanel = (function ($, document) {
         // append to DOM
         $listInnerContainter.append(docFrag);
     }
+    
+    function handleDropShadow(evt) {
+        var currentScrollTop = evt.target.scrollTop;
+        
+        // add drop-shadow when scrolling
+        if (currentScrollTop >= 6 && shadowViewport) {
+            $toggleElement.addClass('drop-shadow');
+            shadowViewport = false;
+        }
+        
+        // remove drop-shadow when scrolled to the top
+        if (currentScrollTop <= 5) {
+            $toggleElement.removeClass('drop-shadow');
+            shadowViewport = true;
+        }
+    }
 
     //##############//
     //### Public ###//
@@ -177,7 +203,7 @@ var onlineBizPanel = (function ($, document) {
      */
     publicAPI.collapse = function () {
         if ($listContainter.hasClass('ob-expanded')) {
-            togglePanel();
+            expandCollapsePanel();
         }
     };
 
@@ -186,7 +212,7 @@ var onlineBizPanel = (function ($, document) {
      */
     publicAPI.expand = function () {
         if ($listContainter.hasClass('ob-collapse')) {
-            togglePanel();
+            expandCollapsePanel();
         }
     };
 
@@ -202,15 +228,23 @@ var onlineBizPanel = (function ($, document) {
         $toggleElement = $(opt.toggleElement);
         $fullDetails = $(opt.fullDetails);
 
-        // get data
+        // get data and build list to DOM
         ajaxManager.loadData(buildList);
 
         // listener for toggle element
-        $toggleElement.bind('click', panelHandler);
+        $toggleElement.bind('click', handlePanelClick);
 
         // listener for event delegation
-        $listInnerContainter.on('click', 'a[class^="ob-details"]', detailsHandler);
-
+        $listInnerContainter.on('click', 'a[class^="ob-details"]', handleDetailsClick);
+        
+        // listener for dropshadow
+        $listContainter.on('scroll', handleDropShadow);
+        
+        // DEBUG: temporary listener to test load more method
+        $('#loadbutton').bind('click', function(evt) {
+            evt.preventDefault();
+            ajaxManager.loadMore(5, buildList);
+        });
     };
 
     return publicAPI;
