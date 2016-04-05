@@ -8,6 +8,7 @@ var onlineBizPanel = (function ($, document) {
         $listInnerContainter,
         $toggleElement,
         $fullDetails,
+        $backButton,
 
         // module API
         publicAPI = {},
@@ -36,12 +37,7 @@ var onlineBizPanel = (function ($, document) {
      */
     function changeContent(update, $showEl) { 
         // change elements and content if "update = true"
-        var $hideEl = (update) ? $listInnerContainter : $fullDetails,
-            status = (update) ? 'back' : 'accordion',
-            toggleText = (update) ? 'Back' : 'Online Businesses';
-    
-        //$toggleElement.find('i').toggleClass('ob-hide');
-        //$toggleElement.attr('data-status', status).find('h2').text(toggleText);
+        var $hideEl = (update) ? $listInnerContainter : $fullDetails;
         
         $hideEl.addClass('ob-hide');
         $hideEl.toggleClass('ob-fadeOut ob-fadeIn');
@@ -74,17 +70,18 @@ var onlineBizPanel = (function ($, document) {
      * @param {event} Click event information
      */
     function handlePanelClick(evt) {
-        //var $status = $toggleElement.attr('data-status');
-        expandCollapsePanel();
-        //($status === 'accordion') ? expandCollapsePanel() : changeContent(false, $listInnerContainter);
-        
+        expandCollapsePanel(); 
     }
     
+     /**
+     * Handler for back button clicks
+     * 
+     * @param {event} Click event information
+     */
     function handleBackClick(evt) {
         changeContent(false, $listInnerContainter);
-        $('#back-button').addClass('ob-hide');
-        $('.bottom-wrap, .top-wrap').remove();
-        
+        $backButton.addClass('ob-hide');
+        $('.bottom-wrap, .top-wrap').remove();   
     }
     
     /**
@@ -97,7 +94,7 @@ var onlineBizPanel = (function ($, document) {
         var $currentName = $(this).attr('data-businessname'),
             detailsData = ajaxManager.search('businessName', $currentName),
             bindContent = changeContent.bind(null, true, $fullDetails);
-        $('#back-button').removeClass('ob-hide');
+        $backButton.removeClass('ob-hide');
         buildFullDetails(detailsData, bindContent);
        
     }
@@ -237,6 +234,7 @@ var onlineBizPanel = (function ($, document) {
         $listInnerContainter = $(opt.listInnerContainer);
         $toggleElement = $(opt.toggleElement);
         $fullDetails = $(opt.fullDetails);
+        $backButton = $(opt.backButton);
 
         // get data and build list to DOM
         ajaxManager.loadData(buildList);
@@ -250,7 +248,8 @@ var onlineBizPanel = (function ($, document) {
         // listener for dropshadow
         $listContainter.on('scroll', handleDropShadow);
         
-        $('#back-button').bind('click', handleBackClick);
+        // listener for back button
+        $backButton.bind('click', handleBackClick);
         
         // DEBUG: temporary listener to test load more method
         $('#loadbutton').bind('click', function(evt) {
@@ -268,6 +267,7 @@ $(document).ready(function () {
         listContainer: '#online-list-containter',
         listInnerContainer: '#online-list-containter ul',
         toggleElement: '#online-biz-toggle',
-        fullDetails: '#ob-full-details'
+        fullDetails: '#ob-full-details',
+        backButton: '#back-button'
     });
 });
