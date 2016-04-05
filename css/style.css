@@ -11,6 +11,64 @@ h1,h2,h3,h4,h5,h6 {
     text-rendering: optimizeLegibility;
 }
 
+button.radius, .button.radius {
+    border-radius: 5px;
+}
+
+button.expand, .button.expand {
+    padding-right: 0;
+    padding-left: 0;
+    width: 100%;
+}
+
+button.small, .button.small {
+    padding-top: 0.875rem;
+    padding-right: 1.75rem;
+    padding-bottom: 0.9375rem;
+    padding-left: 1.75rem;
+    font-size: 1rem;
+}
+
+input[type="submit"] {
+    -webkit-appearance: none;
+}
+
+button, .button {
+    border-style: solid;
+    border-width: 0px;
+    cursor: pointer;
+    font-family: Rockwell, Georgia, Times, “Times New Roman”, serif;
+    font-weight: bold;
+    line-height: normal;
+    margin: 0 0 1.25rem;
+    position: relative;
+    text-decoration: none;
+    text-align: center;
+    -webkit-appearance: none;
+    -webkit-border-radius: 0;
+    display: inline-block;
+    padding-top: 1rem;
+    padding-right: 2rem;
+    padding-bottom: 1.0625rem;
+    padding-left: 2rem;
+    font-size: 1rem;
+    background-color: #ffb300;
+    border-color: #cc8f00;
+    color: #191a7e;
+    -webkit-transition: background-color 300ms ease-out;
+    transition: background-color 300ms ease-out;
+}
+
+input, select, textarea {
+    font: 14px Arial, Helvetica, sans-serif;
+    background-color: #fff;
+    color: #2e2e2e;
+    border: 1px solid #cecdcb;
+    padding: 6px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+}
+
 
 /* CHEVICONS */
 
@@ -60,11 +118,25 @@ h1,h2,h3,h4,h5,h6 {
 }
 
 /* CHEVICONS */
+
+.ob-gray {
+    background-color: #E2E2E2;
+    color: #191a7e;
+    width: 240px;
+    margin: 20px auto 0 auto;
+    display: block;
+    border: 1px solid #C1C1C1;
+}
+.ob-gray:hover {
+    background-color: #CEC9C9;
+}
+
 .rotate-up:before {
     -webkit-transform: rotate(180deg);
     -ms-transform: rotate(180deg);
     transform: rotate(180deg);
 }
+
 hr {
     border: 0;
     height: 0;
@@ -144,7 +216,7 @@ hr {
 }
 
 #online-biz-container .ob-expanded {
-   height: 660px;
+   height: 550px;
 }
 
 #online-biz-container .ob-collapse {
@@ -162,6 +234,10 @@ hr {
 #ob-full-details img:nth-child(1) {
     float: left;
     margin: 0 10px 0 0;
+}
+
+#ob-full-details {
+    width: 240px;
 }
 .top-wrap {
     margin: 20px 0 15px 0;
@@ -203,10 +279,6 @@ hr {
     font-weight: bold;
 }
 
-#online-list-containter ul {
-    overflow-y: scroll;
-}
-
 #online-list-containter ul, #ob-full-details {
     padding: 0;
     margin: 0 30px 20px 30px;
@@ -215,10 +287,15 @@ hr {
 #online-list-containter ul li {
     border-bottom: solid 1px #dddddd;
     padding: 25px 0;
+    width: 240px;
 }
 
 #online-list-containter ul li:last-child { 
     border-bottom: none;
+}
+
+#online-list-containter .top-wrap h2 {
+    color: #464646;
 }
 
 #loadbutton {

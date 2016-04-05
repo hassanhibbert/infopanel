@@ -40,8 +40,8 @@ var onlineBizPanel = (function ($, document) {
             status = (update) ? 'back' : 'accordion',
             toggleText = (update) ? 'Back' : 'Online Businesses';
     
-        $toggleElement.find('i').toggleClass('ob-hide');
-        $toggleElement.attr('data-status', status).find('h2').text(toggleText);
+        //$toggleElement.find('i').toggleClass('ob-hide');
+        //$toggleElement.attr('data-status', status).find('h2').text(toggleText);
         
         $hideEl.addClass('ob-hide');
         $hideEl.toggleClass('ob-fadeOut ob-fadeIn');
@@ -74,9 +74,17 @@ var onlineBizPanel = (function ($, document) {
      * @param {event} Click event information
      */
     function handlePanelClick(evt) {
-        var $status = $toggleElement.attr('data-status');
-        ($status === 'accordion') ? expandCollapsePanel() : changeContent(false, $listInnerContainter);
+        //var $status = $toggleElement.attr('data-status');
+        expandCollapsePanel();
+        //($status === 'accordion') ? expandCollapsePanel() : changeContent(false, $listInnerContainter);
+        
+    }
+    
+    function handleBackClick(evt) {
+        changeContent(false, $listInnerContainter);
+        $('#back-button').addClass('ob-hide');
         $('.bottom-wrap, .top-wrap').remove();
+        
     }
     
     /**
@@ -89,7 +97,9 @@ var onlineBizPanel = (function ($, document) {
         var $currentName = $(this).attr('data-businessname'),
             detailsData = ajaxManager.search('businessName', $currentName),
             bindContent = changeContent.bind(null, true, $fullDetails);
+        $('#back-button').removeClass('ob-hide');
         buildFullDetails(detailsData, bindContent);
+       
     }
     
     /**
@@ -239,6 +249,8 @@ var onlineBizPanel = (function ($, document) {
         
         // listener for dropshadow
         $listContainter.on('scroll', handleDropShadow);
+        
+        $('#back-button').bind('click', handleBackClick);
         
         // DEBUG: temporary listener to test load more method
         $('#loadbutton').bind('click', function(evt) {
