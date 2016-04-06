@@ -3,7 +3,7 @@
 
 var onlineBizPanel = (function ($, document) {
     var
-    // DOM references
+        // DOM references
         $listContainter,
         $listInnerContainter,
         $toggleElement,
@@ -11,15 +11,31 @@ var onlineBizPanel = (function ($, document) {
         $backButton,
 
         // module API
-        publicAPI = {},
+        publicAPI,
         
-        shadowViewport = true;
+        shadowViewport = true,
+        
+        // scroll position
+        scrollPosition = {
+            top: [],
+            temp: null,
+            update: function(currentScrollTop) {
+                this.temp = currentScrollTop;
+            },
+            save: function() {
+                this.top.push(this.temp);
+            },
+            set: function (element) {
+                element.scrollTop = this.top[0];
+                this.top.pop(); // clear the array
+            }
+        };
 
     //###############//
     //### Private ###//
     //###############//
     
-     /**
+    /**
      * Toggles classes to animate the panel height
      * and up/down arrow
      */
@@ -35,16 +51,22 @@ var onlineBizPanel = (function ($, document) {
      * @param {boolean}
      * @param {element} Element to show
      */
-    function changeContent(update, $showEl) { 
-        // change elements and content if "update = true"
+    function changeContent(update, $showEl) {   
         var $hideEl = (update) ? $listInnerContainter : $fullDetails;
         
         $hideEl.addClass('ob-hide');
         $hideEl.toggleClass('ob-fadeOut ob-fadeIn');
         
         $showEl.removeClass('ob-hide');
+        
         $showEl.outerHeight(); // trigger css reflow/repaint
+        
         $showEl.toggleClass('ob-fadeOut ob-fadeIn');
+    
+        // set scroll top postion to the last known Y-Coords
+        if (!update) {
+            scrollPosition.set($listContainter[0]);
+        } 
     }
     
     /**
@@ -78,10 +100,11 @@ var onlineBizPanel = (function ($, document) {
      * 
      * @param {event} Click event information
      */
-    function handleBackClick(evt) {
-        changeContent(false, $listInnerContainter);
+    function handleBackClick(evt) {      
         $backButton.addClass('ob-hide');
-        $('.bottom-wrap, .top-wrap').remove();   
+        $('.bottom-wrap').remove();
+        $('.top-wrap').remove();        
+        changeContent(false, $listInnerContainter);
     }
     
     /**
@@ -96,7 +119,40 @@ var onlineBizPanel = (function ($, document) {
             bindContent = changeContent.bind(null, true, $fullDetails);
         $backButton.removeClass('ob-hide');
         buildFullDetails(detailsData, bindContent);
-       
+    }
+    
+     /**
+     * Handler for hide/show shadow on scroll
+     * 
+     * @param {event} scroll event
+     */
+    function handleDropShadow(evt) {
+        var currentScrollTop = evt.target.scrollTop; 
+    
+        // add drop-shadow when scrolling
+        if (currentScrollTop >= 6 && shadowViewport) {
+            $toggleElement.addClass('drop-shadow');
+            shadowViewport = false;
+        }
+        
+        // remove drop-shadow when scrolled to the top
+        if (currentScrollTop <= 5) {
+            $toggleElement.removeClass('drop-shadow');
+            shadowViewport = true;
+        }
+        
+        // update with the current scroll position.
+        scrollPosition.update(currentScrollTop);
+    }
+    
+    /**
+     * Handler for mousedown. Main purpose of this handler is to store the
+     * current scroll positon
+     * 
+     * @param {event} click event
+     */
+    function handleMouseDown(evt) {
+        scrollPosition.save();
     }
     
     /**
@@ -121,8 +177,8 @@ var onlineBizPanel = (function ($, document) {
             hr = myCreateElement('hr'),
             
             // check if images exist
-            logoImg = (data.logo) ? myCreateElement('img', {src: data.logo, alt: 'business logo'}) : undefined,
-            mainImg = (data.mainimage) ? myCreateElement('img', {src: data.mainimage, alt: 'main image'}) : undefined;
+            logoImg = (data.logo) ? myCreateElement('img', {src: data.logo, alt: data.businessName}) : undefined,
+            mainImg = (data.mainimage) ? myCreateElement('img', {src: data.mainimage, alt: data.businessName}) : undefined;
         
         // append elements (Logo, Business name, phone number)
         (logoImg) ? $(topDiv).append(logoImg) : logoImg; // append logo if it  exist 
@@ -150,7 +206,21 @@ var onlineBizPanel = (function ($, document) {
         // else execute callback without waiting
         (imgElement) ? $(imgElement).load(cb) : cb();
     }
-
+    
+     /**
+     * Truncate string
+     * 
+     * @param {string} string to be truncated
+     * @param {integer} number limit on how much to display
+     * @return {string} returns truncated string
+     */
+    function truncate(str, num) {
+        if (str.length > num) {
+            return str.slice(0, num - 3) + '...';
+        }
+        return str;
+    }
+    
     /**
      * Builds out DOM element and append them to DOM
      * 
@@ -167,12 +237,13 @@ var onlineBizPanel = (function ($, document) {
                 details = myCreateElement('p'),
                 phone = myCreateElement('div', {class: 'ob-phone'}),
                 webLink = myCreateElement('a', {href: dataObj.website,target: '_blank'}),
-                hTag = myCreateElement('h2');
+                hTag = myCreateElement('h2'),
+                shortDetails = truncate(dataObj.details, 73);
 
             // append data to elements
             $(liTag).append(linkDetails, phone, webLink);
             $(hTag).append(dataObj.businessName);
-            $(details).append(dataObj.details);
+            $(details).append(shortDetails);
             $(linkDetails).append(hTag, details);
             $(phone).append(dataObj.phone);
             $(webLink).append(dataObj.website);
@@ -184,22 +255,6 @@ var onlineBizPanel = (function ($, document) {
         // append to DOM
         $listInnerContainter.append(docFrag);
     }
-    
-    function handleDropShadow(evt) {
-        var currentScrollTop = evt.target.scrollTop;
-        
-        // add drop-shadow when scrolling
-        if (currentScrollTop >= 6 && shadowViewport) {
-            $toggleElement.addClass('drop-shadow');
-            shadowViewport = false;
-        }
-        
-        // remove drop-shadow when scrolled to the top
-        if (currentScrollTop <= 5) {
-            $toggleElement.removeClass('drop-shadow');
-            shadowViewport = true;
-        }
-    }
 
     //##############//
     //### Public ###//
@@ -208,27 +263,27 @@ var onlineBizPanel = (function ($, document) {
     /**
      * Collapse panel 
      */
-    publicAPI.collapse = function () {
+    function collapse() {
         if ($listContainter.hasClass('ob-expanded')) {
             expandCollapsePanel();
         }
-    };
+    }
 
     /**
      * Expand panel 
      */
-    publicAPI.expand = function () {
+    function expand() {
         if ($listContainter.hasClass('ob-collapse')) {
             expandCollapsePanel();
         }
-    };
+    }
 
     /**
      * Initialize listeners, cache DOM references
      *
      * @param {object} DOM elements
      */
-    publicAPI.init = function init(opt) {
+    function init(opt) {
         // cache references
         $listContainter = $(opt.listContainer);
         $listInnerContainter = $(opt.listInnerContainer);
@@ -249,16 +304,25 @@ var onlineBizPanel = (function ($, document) {
         $listContainter.on('scroll', handleDropShadow);
         
         // listener for back button
-        $backButton.bind('click', handleBackClick);
+        $backButton.on('click', handleBackClick);
+        
+        $listInnerContainter.on('mousedown', handleMouseDown.bind(scrollPosition));
         
         // DEBUG: temporary listener to test load more method
         $('#loadbutton').bind('click', function(evt) {
             evt.preventDefault();
             ajaxManager.loadMore(5, buildList);
         });
+    }
+    
+    publicAPI = {
+        init: init,
+        expand: expand,
+        collapse: collapse
     };
 
     return publicAPI;
+    
 })(jQuery, document);
 
 

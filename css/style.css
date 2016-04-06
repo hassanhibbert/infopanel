@@ -97,8 +97,8 @@ input, select, textarea {
     display: inline-block;
     color: #191a7e;
     font-size: 18px;
-    -webkit-transition: all 0.5s;
-    transition: all 0.5s; 
+    -webkit-transition: -webkit-transform 0.4s;
+    transition: transform 0.4s; 
 }
 
 .chevicon-chev-down:before { 
@@ -126,9 +126,14 @@ input, select, textarea {
     margin: 20px auto 0 auto;
     display: block;
     border: 1px solid #C1C1C1;
+    outline: 0;
+     z-index: 1;
 }
 .ob-gray:hover {
     background-color: #CEC9C9;
+}
+.ob-gray:active {
+    background-color: #BBB9B9;
 }
 
 .rotate-up:before {
@@ -176,6 +181,8 @@ hr {
     cursor: pointer;
     -webkit-transition: box-shadow 0.3s;
     transition: box-shadow 0.3s;
+    position: relative;
+    z-index: 2;
 }
 
 #online-biz-toggle h2 {
@@ -187,8 +194,8 @@ hr {
 
 #online-list-containter {
     font-family: Arial, Helvetica, sans-serif;
-    -webkit-transition: height 0.5s ease-out;
-    transition: height 0.5s ease-out;
+    -webkit-transition: height 0.5s ease;
+    transition: height 0.5s ease;
     overflow-y: scroll;
 }
 

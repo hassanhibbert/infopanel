@@ -4,7 +4,7 @@ var ajaxManager = (function ($, document) {
 
     var serviceUrl = 'js/fakeData_5.json',
         cachedLength,
-        publicAPI = {},
+        publicAPI,
         parsedData = [];
     
     //###############//
@@ -29,7 +29,7 @@ var ajaxManager = (function ($, document) {
      * @param {string} url of the new service call to retrieve more data for [loadMore] method
      * @param {boolean} check to see if the method calling this function is [loadMore]
      */
-    function getData(cb, newUrl, loadMethod) {     
+    function getData(cb, newUrl, loadMore) {     
         var buildItems,
             sURL = (newUrl) ? newUrl : serviceUrl; // assign new service url
         
@@ -37,17 +37,18 @@ var ajaxManager = (function ($, document) {
             method: 'GET',
             url: sURL,
             success: function (data) {
-                if (loadMethod) {
+                if (loadMore) {
                     
                     // new items to build
                     buildItems = data.slice(cachedLength);
                     
-                    // pass new items to callback. NOTE: will inserted into the DOM at this time
+                    // pass new items to callback. NOTE: will be inserted into the DOM at this time.
                     cb(buildItems);
                     
-                    // cache the new build items and its length
+                    // cache the new build items and update the current cached length
                     cacheData(buildItems);
                     cachedLength = parsedData.length;
+                    console.log(cachedLength);
                 } else {
                     
                     // cache build items and its length
@@ -75,7 +76,7 @@ var ajaxManager = (function ($, document) {
      * @param {string} value name to look for
      * @return {object} returns the object with all the information associated with the provided key/value pair
      */
-    publicAPI.search = function(key, value) {
+    function search(key, value) {
         var result;
         parsedData.forEach(function(dataObj){  
             if (dataObj[key] === value) {
@@ -83,7 +84,7 @@ var ajaxManager = (function ($, document) {
             }
         });
         return (result) ? result : 'No results found.';
-    };
+    }
     
     /**
      * Load more data
@@ -91,18 +92,24 @@ var ajaxManager = (function ($, document) {
      * @param {integer} how much data to request
      * @param {function} callback for processing data received
      */
-    publicAPI.loadMore = function(limit, cb) {
+    function loadMore(limit, cb) {
         // TODO: configue limit
         getData(cb, 'js/fakeData_10.json', true);
-    };
+    }
     
     /**
      * Load initial data
      *
      * @param {function} callback for processing data received
      */
-    publicAPI.loadData = function(cb) {
+    function loadData(cb) {
         getData(cb);
+    }
+    
+    publicAPI = {
+        loadData: loadData,
+        search: search,
+        loadMore: loadMore
     };
 
     return publicAPI;
