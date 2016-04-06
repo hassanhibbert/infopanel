@@ -15,7 +15,7 @@ var onlineBizPanel = (function ($, document) {
         
         shadowViewport = true,
         
-        // scroll position
+        // scroll position vars
         scrollPosition = {
             top: [],
             temp: null,
@@ -36,8 +36,7 @@ var onlineBizPanel = (function ($, document) {
     //###############//
     
     /**
-     * Toggles classes to animate the panel height
-     * and up/down arrow
+     * Toggles classes to animate the panel height and rotate chevron
      */
     function expandCollapsePanel() {
         $listContainter.toggleClass('ob-expanded ob-collapse');
@@ -51,41 +50,23 @@ var onlineBizPanel = (function ($, document) {
      * @param {boolean}
      * @param {element} Element to show
      */
-    function changeContent(update, $showEl) {   
+    function changeContent(update, $showEl) { 
+        // change elements and content if "update = true"
         var $hideEl = (update) ? $listInnerContainter : $fullDetails;
         
         $hideEl.addClass('ob-hide');
         $hideEl.toggleClass('ob-fadeOut ob-fadeIn');
         
         $showEl.removeClass('ob-hide');
-        
         $showEl.outerHeight(); // trigger css reflow/repaint
-        
         $showEl.toggleClass('ob-fadeOut ob-fadeIn');
-    
+        
         // set scroll top postion to the last known Y-Coords
         if (!update) {
             scrollPosition.set($listContainter[0]);
         } 
     }
     
-    /**
-     * Creates elements with attributes on-the-fly
-     *
-     * @param {string} The element to create. Example: div, a, img...
-     * @param {object} Object containing attribute name/value pairs
-     * @return {element} Newly created element with attribute name/value pairs
-     */
-    function myCreateElement(elementType, attributes) {
-        var el = document.createElement(elementType);
-        if (attributes) {
-            Object.keys(attributes).forEach(function (type) {
-                el.setAttribute(type, attributes[type]);
-            });
-        }
-        return el;
-    }
-
     /**
      * Handler for panel clicks
      * 
@@ -100,11 +81,11 @@ var onlineBizPanel = (function ($, document) {
      * 
      * @param {event} Click event information
      */
-    function handleBackClick(evt) {      
-        $backButton.addClass('ob-hide');
-        $('.bottom-wrap').remove();
-        $('.top-wrap').remove();        
+    function handleBackClick(evt) {
         changeContent(false, $listInnerContainter);
+        
+        $backButton.addClass('ob-hide');
+        $('.bottom-wrap, .top-wrap').remove();   
     }
     
     /**
@@ -143,16 +124,41 @@ var onlineBizPanel = (function ($, document) {
         
         // update with the current scroll position.
         scrollPosition.update(currentScrollTop);
+        
+        //console.log(evt);
+        //console.log(evt.target.scrollHeight);
+        if (currentScrollTop === (evt.target.scrollHeight - evt.target.clientHeight)) {
+            console.log('load more data!');
+            ajaxManager.loadMore(10, buildList);
+        }
+        
     }
     
     /**
      * Handler for mousedown. Main purpose of this handler is to store the
      * current scroll positon
      * 
-     * @param {event} click event
+     * @param {event} mouse down event
      */
     function handleMouseDown(evt) {
         scrollPosition.save();
+    }
+    
+    /**
+     * Creates elements with attributes on-the-fly
+     *
+     * @param {string} The element to create. Example: div, a, img...
+     * @param {object} Object containing attribute name/value pairs
+     * @return {element} Newly created element with attribute name/value pairs
+     */
+    function myCreateElement(elementType, attributes) {
+        var el = document.createElement(elementType);
+        if (attributes) {
+            Object.keys(attributes).forEach(function (type) {
+                el.setAttribute(type, attributes[type]);
+            });
+        }
+        return el;
     }
     
     /**
@@ -211,7 +217,7 @@ var onlineBizPanel = (function ($, document) {
      * Truncate string
      * 
      * @param {string} string to be truncated
-     * @param {integer} number limit on how much to display
+     * @param {integer} number limit on how much to display including the three dots
      * @return {string} returns truncated string
      */
     function truncate(str, num) {
@@ -221,8 +227,12 @@ var onlineBizPanel = (function ($, document) {
         return str;
     }
     
+    //##############//
+    //### Public ###//
+    //##############//
+    
     /**
-     * Builds out DOM element and append them to DOM
+     * Creates DOM elements with data from the argument [data]
      * 
      * @param {array} contains objects with data to be iterated over 
      */
@@ -232,7 +242,7 @@ var onlineBizPanel = (function ($, document) {
 
         data.forEach(function (dataObj) {
             // create elements
-            var liTag = myCreateElement('li'),
+            var liTag = myCreateElement('li', {class: 'ob-fadeOut'}),
                 linkDetails = myCreateElement('a', {class: 'ob-details', href: '#', 'data-businessname': dataObj.businessName}),
                 details = myCreateElement('p'),
                 phone = myCreateElement('div', {class: 'ob-phone'}),
@@ -243,7 +253,9 @@ var onlineBizPanel = (function ($, document) {
             // append data to elements
             $(liTag).append(linkDetails, phone, webLink);
             $(hTag).append(dataObj.businessName);
+            
             $(details).append(shortDetails);
+            
             $(linkDetails).append(hTag, details);
             $(phone).append(dataObj.phone);
             $(webLink).append(dataObj.website);
@@ -254,11 +266,12 @@ var onlineBizPanel = (function ($, document) {
 
         // append to DOM
         $listInnerContainter.append(docFrag);
+        
+        // TODO: temp example showing fade in when loading more data
+        setTimeout(function() {
+            $listInnerContainter.children('li').removeAttr('class');
+        }, 350);
     }
-
-    //##############//
-    //### Public ###//
-    //##############//
 
     /**
      * Collapse panel 
@@ -292,6 +305,8 @@ var onlineBizPanel = (function ($, document) {
         $backButton = $(opt.backButton);
 
         // get data and build list to DOM
+        // the default will build out 10 list items.
+        // to change it, pass a number argument. Example: ajaxManager.loadData(buildList, 30);
         ajaxManager.loadData(buildList);
 
         // listener for toggle element
@@ -304,23 +319,21 @@ var onlineBizPanel = (function ($, document) {
         $listContainter.on('scroll', handleDropShadow);
         
         // listener for back button
-        $backButton.on('click', handleBackClick);
+        $backButton.bind('click', handleBackClick);
         
+        // listener for mouse down: handler captures current scroll position
         $listInnerContainter.on('mousedown', handleMouseDown.bind(scrollPosition));
         
-        // DEBUG: temporary listener to test load more method
-        $('#loadbutton').bind('click', function(evt) {
-            evt.preventDefault();
-            ajaxManager.loadMore(5, buildList);
-        });
     }
     
     publicAPI = {
         init: init,
         expand: expand,
-        collapse: collapse
+        collapse: collapse,
+        buildList: buildList
     };
-
+    
+    // expose publicAPI methods
     return publicAPI;
     
 })(jQuery, document);
@@ -333,5 +346,11 @@ $(document).ready(function () {
         toggleElement: '#online-biz-toggle',
         fullDetails: '#ob-full-details',
         backButton: '#back-button'
+    });
+    
+    // DEBUG: temporary listener to test load more method
+    $('#loadbutton').bind('click', function(evt) {
+        evt.preventDefault();
+        ajaxManager.loadMore(10, onlineBizPanel.buildList);
     });
 });

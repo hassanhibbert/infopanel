@@ -205,6 +205,11 @@ hr {
    /* -webkit-transition-delay: 0.2s;
     transition-delay: 0.2s;*/
 }
+#online-list-containter ul li {
+    -webkit-transition: inherit;
+    transition: inherit;
+    opacity: 1;
+}
 
 #online-biz-container .ob-fadeOut {
     opacity: 0;
