@@ -98,7 +98,9 @@ input, select, textarea {
     color: #191a7e;
     font-size: 18px;
     -webkit-transition: -webkit-transform 0.4s;
-    transition: transform 0.4s; 
+    transition: -webkit-transform 0.4s;
+    transition: transform 0.4s;
+    transition: transform 0.4s, -webkit-transform 0.4s; 
 }
 
 .chevicon-chev-down:before { 
@@ -202,12 +204,14 @@ hr {
 #online-list-containter ul, #ob-full-details {
     -webkit-transition: opacity 0.7s;
     transition: opacity 0.7s;
-   /* -webkit-transition-delay: 0.2s;
+    /*-webkit-transition-delay: 0.2s;
     transition-delay: 0.2s;*/
 }
 #online-list-containter ul li {
-    -webkit-transition: inherit;
-    transition: inherit;
+    -webkit-transition: opacity 0.7s;
+    transition: opacity 0.7s;
+    -webkit-transition-delay: 0.4s;
+    transition-delay: 0.4s;
     opacity: 1;
 }
 

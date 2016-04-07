@@ -45,6 +45,13 @@ var onlineBizPanel = (function ($, document) {
     }
     
     /**
+     * trigger css reflow/repaint
+     */
+    function triggerReflow($element) {
+        $element.outerHeight();
+    }
+    
+    /**
      * Show/Hide "Listed Details" and "Full Details" panel.
      * 
      * @param {boolean}
@@ -58,7 +65,7 @@ var onlineBizPanel = (function ($, document) {
         $hideEl.toggleClass('ob-fadeOut ob-fadeIn');
         
         $showEl.removeClass('ob-hide');
-        $showEl.outerHeight(); // trigger css reflow/repaint
+        triggerReflow($showEl); // trigger css reflow/repaint
         $showEl.toggleClass('ob-fadeOut ob-fadeIn');
         
         // set scroll top postion to the last known Y-Coords
@@ -107,8 +114,10 @@ var onlineBizPanel = (function ($, document) {
      * 
      * @param {event} scroll event
      */
-    function handleDropShadow(evt) {
-        var currentScrollTop = evt.target.scrollTop; 
+    function handleScrolling(evt) {
+        var eTarget = evt.target,
+            currentScrollTop = eTarget.scrollTop,
+            panelScrollEnd = eTarget.scrollHeight - eTarget.clientHeight; 
     
         // add drop-shadow when scrolling
         if (currentScrollTop >= 6 && shadowViewport) {
@@ -125,13 +134,11 @@ var onlineBizPanel = (function ($, document) {
         // update with the current scroll position.
         scrollPosition.update(currentScrollTop);
         
-        //console.log(evt);
-        //console.log(evt.target.scrollHeight);
-        if (currentScrollTop === (evt.target.scrollHeight - evt.target.clientHeight)) {
-            console.log('load more data!');
+        // TODO: concept
+        // load more data when scrolled to the bottom
+        if (currentScrollTop === panelScrollEnd) {
             ajaxManager.loadMore(10, buildList);
         }
-        
     }
     
     /**
@@ -252,10 +259,8 @@ var onlineBizPanel = (function ($, document) {
 
             // append data to elements
             $(liTag).append(linkDetails, phone, webLink);
-            $(hTag).append(dataObj.businessName);
-            
+            $(hTag).append(dataObj.businessName);          
             $(details).append(shortDetails);
-            
             $(linkDetails).append(hTag, details);
             $(phone).append(dataObj.phone);
             $(webLink).append(dataObj.website);
@@ -268,9 +273,9 @@ var onlineBizPanel = (function ($, document) {
         $listInnerContainter.append(docFrag);
         
         // TODO: temp example showing fade in when loading more data
-        setTimeout(function() {
-            $listInnerContainter.children('li').removeAttr('class');
-        }, 350);
+        triggerReflow($listInnerContainter);
+        
+        $listInnerContainter.children('li').removeAttr('class');
     }
 
     /**
@@ -305,7 +310,7 @@ var onlineBizPanel = (function ($, document) {
         $backButton = $(opt.backButton);
 
         // get data and build list to DOM
-        // the default will build out 10 list items.
+        // the default will build out 20 list items.
         // to change it, pass a number argument. Example: ajaxManager.loadData(buildList, 30);
         ajaxManager.loadData(buildList);
 
@@ -315,8 +320,8 @@ var onlineBizPanel = (function ($, document) {
         // listener for event delegation
         $listInnerContainter.on('click', 'a[class^="ob-details"]', handleDetailsClick);
         
-        // listener for dropshadow
-        $listContainter.on('scroll', handleDropShadow);
+        // listener for scrolling
+        $listContainter.on('scroll', handleScrolling);
         
         // listener for back button
         $backButton.bind('click', handleBackClick);
@@ -348,7 +353,7 @@ $(document).ready(function () {
         backButton: '#back-button'
     });
     
-    // DEBUG: temporary listener to test load more method
+    // TODO: temporary listener to test load more method
     $('#loadbutton').bind('click', function(evt) {
         evt.preventDefault();
         ajaxManager.loadMore(10, onlineBizPanel.buildList);

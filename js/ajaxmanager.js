@@ -2,7 +2,7 @@
 
 var ajaxManager = (function ($, document) {
 
-    var serviceUrl = 'js/fakeData_1000Plus.json',
+    var serviceUrl = 'js/fakeData_300.json',
         
         // cache vars
         cachedLength,
@@ -115,10 +115,10 @@ var ajaxManager = (function ($, document) {
      * Load initial data
      *
      * @param {function} callback for processing data received
-     * @param {interger} [optional] default number is 10 but can be changed of the  [limit] argument available 
+     * @param {interger} [optional] default number is 20 but can be changed with the [limit] argument available 
      */
     function loadData(cb, limit) {
-        limit = (limit && typeof limit === 'number') ? limit : 10;
+        limit = (limit && typeof limit === 'number') ? limit : 20;
         ajaxRequest(limit, cb);
     }
 
