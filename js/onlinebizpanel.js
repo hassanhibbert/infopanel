@@ -180,33 +180,41 @@ var onlineBizPanel = (function ($, document) {
             // document fragment
             docFrag = document.createDocumentFragment(),
             
+            // data references
+            dataPhone = data.phone,
+            dataWebsite = data.website,
+            dataCompanyName = data.businessName,
+            dataDetails = data.details,
+            dataLogo = data.logo,
+            dataPhoto = data.mainimage,
+            
             // create elements
             topDiv = myCreateElement('div', {class: 'top-wrap clearfix'}),
             bottomDiv = myCreateElement('div', {class: 'bottom-wrap'}), 
             hTag = myCreateElement('h2'),
-            aTagPhone = myCreateElement('a', {class: 'ob-phone', href: 'tel:' + data.phone}),
-            aTagWeb = myCreateElement('a', {href: data.website, target: '_blank'}),
+            aTagPhone = myCreateElement('a', {class: 'ob-phone', href: 'tel:' + formatPhone(dataPhone)}),
+            aTagWeb = myCreateElement('a', {href: dataWebsite, target: '_blank'}),
             pTagDetails = myCreateElement('p'),
             hr = myCreateElement('hr'),
             
             // check if images exist
-            logoImg = (data.logo) ? myCreateElement('img', {src: data.logo, alt: data.businessName}) : undefined,
-            mainImg = (data.mainimage) ? myCreateElement('img', {src: data.mainimage, alt: data.businessName}) : undefined;
+            logoImg = (dataLogo) ? myCreateElement('img', {src: dataLogo, alt: dataCompanyName}) : undefined,
+            mainImg = (dataPhoto) ? myCreateElement('img', {src: dataPhoto, alt: dataCompanyName}) : undefined;
         
         // append elements (Logo, Business name, phone number)
         (logoImg) ? $(topDiv).append(logoImg) : logoImg; // append logo if it  exist 
         $(topDiv).append(hTag);
         $(topDiv).append(aTagPhone); 
-        $(hTag).append(data.businessName);
-        $(aTagPhone).append(data.phone);
+        $(hTag).append(dataCompanyName);
+        $(aTagPhone).append(formatPhone(dataPhone));
         $(docFrag).append(topDiv);
         
         // append elements (Description, Main image)
         $(bottomDiv).append(pTagDetails);
         $(bottomDiv).append(aTagWeb);
         (mainImg) ? $(bottomDiv).append(hr, mainImg) : mainImg; // append main image if it exist
-        $(pTagDetails).append(data.details);
-        $(aTagWeb).append(data.website);
+        $(pTagDetails).append(dataDetails);
+        $(aTagWeb).append(dataWebsite);
         $(docFrag).append(bottomDiv);
         
         // append full details to DOM
@@ -234,6 +242,18 @@ var onlineBizPanel = (function ($, document) {
         return str;
     }
     
+    /**
+     * Formats phone number
+     * 
+     * @param {string} phone number to be formated
+     * @return {string} returns formated number
+     */
+    function formatPhone(str) {
+        var noformat = str.replace(/[\D]/ig, ''),
+            formatedPhone = noformat.replace(/(\d{3})+(\d{3})+(\d{4})/gi, '$1-$2-$3');
+        return formatedPhone;
+    }
+    
     //##############//
     //### Public ###//
     //##############//
@@ -248,22 +268,28 @@ var onlineBizPanel = (function ($, document) {
         var docFrag = document.createDocumentFragment();
 
         data.forEach(function (dataObj) {
-            // create elements
-            var liTag = myCreateElement('li', {class: 'ob-fadeOut'}),
-                linkDetails = myCreateElement('a', {class: 'ob-details', href: '#', 'data-businessname': dataObj.businessName}),
+            // data references
+            var dataPhone = dataObj.phone,
+                dataWebsite = dataObj.website,
+                dataCompanyName = dataObj.businessName,
+                dataDetails = dataObj.details,
+                
+                // create elements
+                liTag = myCreateElement('li', {class: 'ob-fadeOut'}),
+                linkDetails = myCreateElement('a', {class: 'ob-details', href: '#', 'data-businessname': dataCompanyName}),
                 details = myCreateElement('p'),
                 phone = myCreateElement('div', {class: 'ob-phone'}),
-                webLink = myCreateElement('a', {href: dataObj.website,target: '_blank'}),
+                webLink = myCreateElement('a', {href: dataWebsite,target: '_blank'}),
                 hTag = myCreateElement('h2'),
-                shortDetails = truncate(dataObj.details, 73);
+                shortDetails = truncate(dataDetails, 73);
 
             // append data to elements
             $(liTag).append(linkDetails, phone, webLink);
-            $(hTag).append(dataObj.businessName);          
+            $(hTag).append(dataCompanyName);          
             $(details).append(shortDetails);
             $(linkDetails).append(hTag, details);
-            $(phone).append(dataObj.phone);
-            $(webLink).append(dataObj.website);
+            $(phone).append(formatPhone(dataPhone));
+            $(webLink).append(dataWebsite);
 
             // append everything to document fragment
             $(docFrag).append(liTag);
